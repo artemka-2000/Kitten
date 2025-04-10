@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="https://www.Kitten.com">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Котики и Заказы 🐾</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background-color: #fff5f5;
+            color: #5a3e36;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #ff85a2;
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        h1::before, h1::after {
+            content: "🐾";
+            position: relative;
+            top: -5px;
+            margin: 0 10px;
+            font-size: 0.8em;
+        }
+        .cat-img {
+            width: 200px;
+            border-radius: 50%;
+            margin: 20px 0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .order-form {
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 2px solid #ffcce0;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #ff85a2;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 15px;
+        }
+        button:hover {
+            background-color: #ff6b8b;
+        }
+        footer {
+            margin-top: 30px;
+            color: #a38f85;
+        }
+        
+        /* Стили для корзины */
+        .products {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin: 20px 0;
+        }
+        .product {
+            width: 48%;
+            margin-bottom: 20px;
+            background: #fff9f9;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+        }
+        .product img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 15px;
+        }
+        .product-info {
+            text-align: left;
+            flex-grow: 1;
+        }
+        .product-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .product-price {
+            color: #ff85a2;
+        }
+        .add-to-cart {
+            background: #ffcce0;
+            border: none;
+            color: #5a3e36;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .cart {
+            margin-top: 20px;
+            border-top: 2px dashed #ffcce0;
+            padding-top: 20px;
+        }
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        .cart-item img {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+        .remove-item {
+            color: #ff6b8b;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        
+        /* Стили для горячих наборов */
+        .hot-items {
+            display: none;
+            width: 100%;
+            margin-top: 15px;
+            background: #fff0f5;
+            border-radius: 10px;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+        .hot-item {
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+            text-align: left;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .hot-item-title {
+            font-weight: bold;
+            color: #ff6b8b;
+        }
+        .hot-item-desc {
+            font-size: 0.9em;
+            color: #7a6a65;
+            margin: 5px 0;
+            font-style: italic;
+        }
+        .show-hot-items {
+            width: 100%;
+            background: #ffcce0;
+            border: none;
+            padding: 8px;
+            border-radius: 5px;
+            margin-top: 5px;
+            cursor: pointer;
+        }
+        
+        /* Блок баланса */
+        .balance-container {
+            background: #fff0f5;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .balance {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #ff6b8b;
+        }
+        .balance img {
+            width: 24px;
+            height: 24px;
+            vertical-align: middle;
+            margin-right: 5px;
+        }
+        .admin-controls {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0f8ff;
+            border-radius: 10px;
+        }
+        .admin-input {
+            display: flex;
+            margin-top: 10px;
+        }
+        .admin-input input {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Служба поддержки сладеньких котиков</h1>
+        <img src="https://avatars.mds.yandex.net/i?id=078fe9ac126c904f9787d7747b8000e0_l-12486332-images-thumbs&n=13" alt="Котик" class="cat-img">
+        
+        <!-- Блок баланса -->
+        <div class="balance-container">
+            <div>
+                <h3>Ваш баланс:</h3>
+                <div class="balance"><img src="https://cdn-icons-png.flaticon.com/512/217/217853.png" alt="Монетка"> <span id="userBalance">0</span> котико-монеток</div>
+            </div>
+            <div id="adminControls" style="display: none;" class="admin-controls">
+                <h4>Админ-панель</h4>
+                <div class="admin-input">
+                    <input type="number" id="newBalance" placeholder="Новый баланс">
+                    <button onclick="setBalance()">Установить</button>
+                </div>
+            </div>
+        </div>
+        
+        <p>Выберите то, что вам нужно, и я свяжусь с вами!</p>
+
+        <div class="order-form">
+            <form id="orderForm">
+                <label for="name">Ваше имя:</label>
+                <input type="text" id="name" name="name" required>
+
+                <label for="phone">Ваш телефон или Telegram:</label>
+                <input type="text" id="phone" name="phone" required>
+
+                <h3>Выберите товары:</h3>
+                <div class="products">
+                    <div class="product">
+                        <img src="https://i.pinimg.com/736x/f0/62/9f/f0629f0bbd9e2805a521496c37a66d4b.jpg" alt="Матча">
+                        <div class="product-info">
+                            <div class="product-title">Матча</div>
+                            <div class="product-price">15 котико-монеток</div>
+                        </div>
+                        <button type="button" class="add-to-cart" data-name="Матча" data-price="15">+</button>
+                    </div>
+                    
+                    <div class="product">
+                        <img src="https://i.pinimg.com/736x/c7/a7/1f/c7a71fd3fec2905659ec003bc53f1772.jpg" alt="Прогулка">
+                        <div class="product-info">
+                            <div class="product-title">Вызвать котика на прогулку</div>
+                            <div class="product-price">8 котико-монеток</div>
+                        </div>
+                        <button type="button" class="add-to-cart" data-name="Вызвать котика на прогулку" data-price="8">+</button>
+                    </div>
+                    
+                    <div class="product">
+                        <img src="https://i.pinimg.com/originals/9d/c2/e1/9dc2e1daf0e30e979f30d717be351d53.jpg" alt="Созвон">
+                        <div class="product-info">
+                            <div class="product-title">Созвон с котиком</div>
+                            <div class="product-price">3 котико-монетки</div>
+                        </div>
+                        <button type="button" class="add-to-cart" data-name="Созвон с котиком" data-price="3">+</button>
+                    </div>
+                    
+                    <div class="product">
+                        <img src="https://avatars.mds.yandex.net/i?id=f7739b1e1c4adb444fc861630b861052_l-5490985-images-thumbs&n=13" alt="Завтрак">
+                        <div class="product-info">
+                            <div class="product-title">Утреннее-сонный завтрак</div>
+                            <div class="product-price">2 котико-монетки</div>
+                        </div>
+                        <button type="button" class="add-to-cart" data-name="Утреннее-сонный завтрак" data-price="2">+</button>
+                    </div>
+                    
+                    <div class="product">
+                        <img src="https://avatars.mds.yandex.net/i?id=93f0f2d6fb02e5efb9caae0a91819bfd_l-9848182-images-thumbs&n=13" alt="Горячее">
+                        <div class="product-info">
+                            <div class="product-title">Что-то погорячее</div>
+                            <div class="product-price">от 5 котико-монеток</div>
+                        </div>
+                        <button type="button" class="show-hot-items" onclick="toggleHotItems()">Выбрать набор ▼</button>
+                        <div class="hot-items" id="hotItems">
+                            <div class="hot-item">
+                                <div class="hot-item-title">Набор №1 (5 котико-монеток)</div>
+                                <div class="hot-item-desc">Рекомендовано перед выходом на работу</div>
+                                <button type="button" class="add-to-cart" data-name="Набор №1 (Утренний)" data-price="5">+</button>
+                            </div>
+                            <div class="hot-item">
+                                <div class="hot-item-title">Набор №2 (8 котико-монеток)</div>
+                                <div class="hot-item-desc">Рекомендовано при желании развлечься по взрослому</div>
+                                <button type="button" class="add-to-cart" data-name="Набор №2 (Для взрослых)" data-price="8">+</button>
+                            </div>
+                            <div class="hot-item">
+                                <div class="hot-item-title">Набор №3 (12 котико-монеток)</div>
+                                <div class="hot-item-desc">Рекомендовано с шампанским и готовностью сильно увлечься процессом</div>
+                                <button type="button" class="add-to-cart" data-name="Набор №3 (Премиум)" data-price="12">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cart">
+                    <h3>Ваша корзина:</h3>
+                    <div id="cart-items"></div>
+                    <div id="cart-total" style="font-weight: bold; margin-top: 10px;"></div>
+                    <div id="balance-check" style="color: #ff6b8b; margin-top: 10px;"></div>
+                </div>
+
+                <label for="message">Дополнительные пожелания:</label>
+                <textarea id="message" name="message" rows="4"></textarea>
+
+                <button type="submit" id="submitOrder">Отправить заказ 🐱</button>
+            </form>
+        </div>
+
+        <footer>
+            <p>С любовью, лупа 🐾</p>
+        </footer>
+    </div>
+
+    <script>
+        let cart = [];
+        let userBalance = 0;
+        const ADMIN_PASSWORD = "admin123"; // Пароль для доступа к админке
+        
+        // Проверка баланса при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            // Попробуем получить баланс из localStorage
+            const savedBalance = localStorage.getItem('catCoinBalance');
+            if (savedBalance) {
+                userBalance = parseInt(savedBalance);
+            } else {
+                userBalance = 0;
+                localStorage.setItem('catCoinBalance', userBalance);
+            }
+            updateBalanceDisplay();
+            
+            // Проверяем, админ ли это
+            const isAdmin = localStorage.getItem('isAdmin') === 'true';
+            if (isAdmin) {
+                document.getElementById('adminControls').style.display = 'block';
+            }
+        });
+        
+        // Функция для показа/скрытия горячих наборов
+        function toggleHotItems() {
+            const hotItems = document.getElementById('hotItems');
+            if (hotItems.style.display === 'block') {
+                hotItems.style.display = 'none';
+                event.target.textContent = 'Выбрать набор ▼';
+            } else {
+                hotItems.style.display = 'block';
+                event.target.textContent = 'Скрыть наборы ▲';
+            }
+        }
+        
+        // Добавление товара в корзину
+        document.querySelectorAll('.add-to-cart').forEach(button => {
+            button.addEventListener('click', function() {
+                const name = this.getAttribute('data-name');
+                const price = parseInt(this.getAttribute('data-price'));
+                
+                // Проверяем, есть ли уже такой товар в корзине
+                const existingItem = cart.find(item => item.name === name);
+                if (existingItem) {
+                    existingItem.quantity += 1;
+                } else {
+                    cart.push({
+                        name: name,
+                        price: price,
+                        quantity: 1
+                    });
+                }
+                
+                updateCart();
+                checkBalance();
+            });
+        });
+        
+        // Обновление отображения корзины
+        function updateCart() {
+            const cartItemsElement = document.getElementById('cart-items');
+            const cartTotalElement = document.getElementById('cart-total');
+            
+            cartItemsElement.innerHTML = '';
+            
+            if (cart.length === 0) {
+                cartItemsElement.innerHTML = '<p>Корзина пуста</p>';
+                cartTotalElement.textContent = '';
+                return;
+            }
+            
+            let total = 0;
+            
+            cart.forEach((item, index) => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'cart-item';
+                itemElement.innerHTML = `
+                    <div style="display: flex; align-items: center;">
+                        <img src="${getProductImage(item.name)}" alt="${item.name}">
+                        <span style="margin-left: 10px;">${item.name} (${item.price} котико-монеток) × ${item.quantity}</span>
+                    </div>
+                    <div>
+                        <span>${item.price * item.quantity} котико-монеток</span>
+                        <span class="remove-item" data-index="${index}">❌</span>
+                    </div>
+                `;
+                cartItemsElement.appendChild(itemElement);
+                
+                total += item.price * item.quantity;
+            });
+            
+            cartTotalElement.textContent = `Итого: ${total} котико-монеток`;
+            
+            // Добавляем обработчики для кнопок удаления
+            document.querySelectorAll('.remove-item').forEach(button => {
+                button.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    cart.splice(index, 1);
+                    updateCart();
+                    checkBalance();
+                });
+            });
+        }
+        
+        // Проверка баланса
+        function checkBalance() {
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const balanceCheck = document.getElementById('balance-check');
+            const submitButton = document.getElementById('submitOrder');
+            
+            if (total > userBalance) {
+                balanceCheck.textContent = 'Недостаточно котико-монеток для этого заказа!';
+                balanceCheck.style.color = '#ff6b8b';
+                submitButton.disabled = true;
+            } else {
+                balanceCheck.textContent = 'Достаточно котико-монеток для заказа!';
+                balanceCheck.style.color = '#85a2ff';
+                submitButton.disabled = false;
+            }
+        }
+        
+        // Обновление отображения баланса
+        function updateBalanceDisplay() {
+            document.getElementById('userBalance').textContent = userBalance;
+            checkBalance();
+        }
+        
+        // Установка нового баланса (админка)
+        function setBalance() {
+            const password = prompt('Введите пароль админа:');
+            if (password === ADMIN_PASSWORD) {
+                const newBalance = parseInt(document.getElementById('newBalance').value);
+                if (!isNaN(newBalance)) {
+                    userBalance = newBalance;
+                    localStorage.setItem('catCoinBalance', userBalance);
+                    localStorage.setItem('isAdmin', 'true');
+                    updateBalanceDisplay();
+                    alert('Баланс обновлён!');
+                } else {
+                    alert('Введите корректное число!');
+                }
+            } else if (password) {
+                alert('Неверный пароль!');
+            }
+        }
+        
+        // Получение изображения товара
+        function getProductImage(name) {
+            const products = {
+                'Матча': 'https://i.pinimg.com/736x/f0/62/9f/f0629f0bbd9e2805a521496c37a66d4b.jpg',
+                'Вызвать котика на прогулку': 'https://i.pinimg.com/736x/c7/a7/1f/c7a71fd3fec2905659ec003bc53f1772.jpg',
+                'Созвон с котиком': 'https://i.pinimg.com/originals/9d/c2/e1/9dc2e1daf0e30e979f30d717be351d53.jpg',
+                'Утреннее-сонный завтрак': 'https://avatars.mds.yandex.net/i?id=f7739b1e1c4adb444fc861630b861052_l-5490985-images-thumbs&n=13',
+                'Набор №1 (Утренний)': 'https://avatars.mds.yandex.net/i?id=93f0f2d6fb02e5efb9caae0a91819bfd_l-9848182-images-thumbs&n=13',
+                'Набор №2 (Для взрослых)': 'https://avatars.mds.yandex.net/i?id=93f0f2d6fb02e5efb9caae0a91819bfd_l-9848182-images-thumbs&n=13',
+                'Набор №3 (Премиум)': 'https://avatars.mds.yandex.net/i?id=93f0f2d6fb02e5efb9caae0a91819bfd_l-9848182-images-thumbs&n=13'
+            };
+            return products[name] || 'https://placekitten.com/100/100';
+        }
+        
+        // Отправка формы
+        document.getElementById('orderForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (cart.length === 0) {
+                alert('Добавьте товары в корзину перед отправкой!');
+                return;
+            }
+            
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            if (total > userBalance) {
+                alert('Недостаточно котико-монеток для этого заказа!');
+                return;
+            }
+            
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const message = document.getElementById('message').value;
+
+            // Формируем текст заказа
+            let orderText = `📦 Новый заказ!\n\nИмя: ${name}\nКонтакты: ${phone}\n\nЗаказ:\n`;
+            
+            cart.forEach(item => {
+                orderText += `- ${item.name} (${item.price} котико-монеток) × ${item.quantity} = ${item.price * item.quantity} котико-монеток\n`;
+            });
+            
+            orderText += `\nИтого: ${total} котико-монеток\n\nСообщение: ${message || 'Нет дополнительных пожеланий'}`;
+            
+            // Замените YOUR_BOT_TOKEN и YOUR_CHAT_ID на данные вашего Telegram-бота
+            const botToken = '7711601731:AAFav92ACe0yaFR0LDEaeY9WZaQlc5H4xdE';
+            const chatId = '1278323093';
+            
+            // Отправка в Telegram через Bot API
+            fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    chat_id: chatId,
+                    text: orderText,
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Списание средств при успешной отправке
+                userBalance -= total;
+                localStorage.setItem('catCoinBalance', userBalance);
+                
+                alert('Ваш заказ отправлен! Средства списаны с вашего баланса 🐱');
+                document.getElementById('orderForm').reset();
+                cart = [];
+                updateCart();
+                updateBalanceDisplay();
+            })
+            .catch(error => {
+                alert('Ошибка отправки. Попробуйте написать мне напрямую: @livetobe');
+                console.error(error);
+            });
+        });
+        
+        // Активация админки по тройному клику на баланс
+        let clickCount = 0;
+        document.getElementById('userBalance').addEventListener('click', function() {
+            clickCount++;
+            if (clickCount >= 3) {
+                const password = prompt('Введите пароль админа:');
+                if (password === ADMIN_PASSWORD) {
+                    document.getElementById('adminControls').style.display = 'block';
+                    localStorage.setItem('isAdmin', 'true');
+                    alert('Админ-панель активирована!');
+                } else if (password) {
+                    alert('Неверный пароль!');
+                }
+                clickCount = 0;
+            }
+        });
+    </script>
+</body>
+</html>
