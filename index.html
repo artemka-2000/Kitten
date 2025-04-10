@@ -327,25 +327,20 @@
     <script>
         let cart = [];
         let userBalance = 0;
-        const ADMIN_PASSWORD = "228228"; // Пароль для доступа к админке
+        const ADMIN_PASSWORD = "228228";
         
         // Проверка баланса при загрузке страницы
         document.addEventListener('DOMContentLoaded', function() {
-            // Попробуем получить баланс из localStorage
+            // Получаем баланс из localStorage
             const savedBalance = localStorage.getItem('catCoinBalance');
-            if (savedBalance) {
-                userBalance = parseInt(savedBalance);
-            } else {
-                userBalance = 0;
-                localStorage.setItem('catCoinBalance', userBalance);
-            }
+            userBalance = savedBalance ? parseInt(savedBalance) : 0;
+            localStorage.setItem('catCoinBalance', userBalance);
+            
             updateBalanceDisplay();
             
             // Проверяем, админ ли это
-            const isAdmin = localStorage.getItem('isAdmin') === 'true';
-            if (isAdmin) {
-                document.getElementById('adminControls').style.display = 'block';
-            }
+            // Убрана проверка isAdmin - панель всегда скрыта при загрузке
+            document.getElementById('adminControls').style.display = 'none';
         });
         
         // Функция для показа/скрытия горячих наборов
@@ -488,6 +483,7 @@
         }
         
         // Отправка формы
+        // Отправка формы (исправленная версия)
         document.getElementById('orderForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -502,9 +498,14 @@
                 return;
             }
             
-            const name = document.getElementById('name').value;
-            const phone = document.getElementById('phone').value;
-            const message = document.getElementById('message').value;
+            const name = document.getElementById('name').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const message = document.getElementById('message').value.trim();
+
+            if (!name || !phone) {
+                alert('Пожалуйста, заполните имя и контакты!');
+                return;
+            }
 
             // Формируем текст заказа
             let orderText = `📦 Новый заказ!\n\nИмя: ${name}\nКонтакты: ${phone}\n\nЗаказ:\n`;
@@ -515,11 +516,10 @@
             
             orderText += `\nИтого: ${total} котико-монеток\n\nСообщение: ${message || 'Нет дополнительных пожеланий'}`;
             
-            // Замените YOUR_BOT_TOKEN и YOUR_CHAT_ID на данные вашего Telegram-бота
             const botToken = '7711601731:AAFav92ACe0yaFR0LDEaeY9WZaQlc5H4xdE';
             const chatId = '1278323093';
             
-            // Отправка в Telegram через Bot API
+            // Отправка в Telegram
             fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
                 method: 'POST',
                 headers: {
@@ -528,23 +528,33 @@
                 body: JSON.stringify({
                     chat_id: chatId,
                     text: orderText,
+                    parse_mode: 'HTML'
                 }),
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Ошибка сети');
+                }
+                return response.json();
+            })
             .then(data => {
-                // Списание средств при успешной отправке
-                userBalance -= total;
-                localStorage.setItem('catCoinBalance', userBalance);
-                
-                alert('Ваш заказ отправлен! Средства списаны с вашего баланса 🐱');
-                document.getElementById('orderForm').reset();
-                cart = [];
-                updateCart();
-                updateBalanceDisplay();
+                if (data.ok) {
+                    // Списание средств
+                    userBalance -= total;
+                    localStorage.setItem('catCoinBalance', userBalance);
+                    
+                    alert('✅ Заказ отправлен! Средства списаны.');
+                    document.getElementById('orderForm').reset();
+                    cart = [];
+                    updateCart();
+                    updateBalanceDisplay();
+                } else {
+                    throw new Error(data.description || 'Ошибка отправки');
+                }
             })
             .catch(error => {
-                alert('Ошибка отправки. Попробуйте написать мне напрямую: @livetobe');
-                console.error(error);
+                console.error('Ошибка:', error);
+                alert(`Ошибка отправки: ${error.message}\nПопробуйте написать напрямую: @livetobe`);
             });
         });
         
