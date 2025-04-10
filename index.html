@@ -330,7 +330,7 @@
     <script>
         let cart = [];
         let userBalance = 0;
-        const ADMIN_PASSWORD = "admin123"; // Пароль для доступа к админке
+        const ADMIN_PASSWORD = "228228"; // Пароль для доступа к админке
         
         // Проверка баланса при загрузке страницы
         document.addEventListener('DOMContentLoaded', function() {
@@ -457,22 +457,24 @@
         
         // Установка нового баланса (админка)
         function setBalance() {
-            const password = prompt('Введите пароль админа:');
-            if (password === ADMIN_PASSWORD) {
-                const newBalance = parseInt(document.getElementById('newBalance').value);
-                if (!isNaN(newBalance)) {
-                    userBalance = newBalance;
-                    localStorage.setItem('catCoinBalance', userBalance);
-                    localStorage.setItem('isAdmin', 'true');
-                    updateBalanceDisplay();
-                    alert('Баланс обновлён!');
-                } else {
-                    alert('Введите корректное число!');
-                }
-            } else if (password) {
-                alert('Неверный пароль!');
+        const password = prompt('Введите пароль админа:');
+        if (password === ADMIN_PASSWORD) {
+            const newBalance = parseInt(document.getElementById('newBalance').value);
+            if (!isNaN(newBalance)) {
+                userBalance = newBalance;
+                localStorage.setItem('catCoinBalance', userBalance);
+                localStorage.setItem('isAdmin', 'true');
+                updateBalanceDisplay();
+                alert('Баланс обновлён!');
+                // Закрываем админ-панель
+                document.getElementById('adminControls').style.display = 'none';
+            } else {
+                alert('Введите корректное число!');
             }
+        } else if (password) {
+            alert('Неверный пароль!');
         }
+    }
         
         // Получение изображения товара
         function getProductImage(name) {
