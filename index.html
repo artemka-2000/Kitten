@@ -239,6 +239,8 @@
             <form id="orderForm">
                 <label for="name">Ваше имя:</label>
                 <input type="text" id="name" name="name" required>
+                label for="contacts">Ваши контакты (Telegram/телефон):</label>
+                <input type="text" id="contacts" name="contacts" required>
 
                 <h3>Выберите товары:</h3>
                 <div class="products">
@@ -484,34 +486,34 @@
         
         // Улучшенная функция отправки формы
         document.getElementById('orderForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const submitBtn = document.getElementById('submitOrder');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Отправка...';
-            
-            try {
-                // Проверки
-                if (cart.length === 0) throw new Error('Добавьте товары в корзину!');
-                
-                const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-                if (total > userBalance) throw new Error('Недостаточно котико-монеток!');
-                
-                const name = document.getElementById('name').value.trim();
-                const phone = document.getElementById('phone').value.trim();
-                if (!name) throw new Error('Введите ваше имя!');
-                if (!phone) throw new Error('Укажите контакты!');
+    e.preventDefault();
+    
+    const submitBtn = document.getElementById('submitOrder');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Отправка...';
+    
+    try {
+        // Проверки
+        if (cart.length === 0) throw new Error('Добавьте товары в корзину!');
+        
+        const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        if (total > userBalance) throw new Error('Недостаточно котико-монеток!');
+        
+        const name = document.getElementById('name').value.trim();
+        const contacts = document.getElementById('contacts').value.trim();
+        if (!name) throw new Error('Введите ваше имя!');
+        if (!contacts) throw new Error('Укажите контакты для связи!');
 
-                // Формирование сообщения
-                const message = document.getElementById('message').value.trim();
-                let orderText = `<b>🐾 Новый заказ!</b>\n\n`;
-                orderText += `<b>Имя:</b> ${name}\n<b>Контакты:</b> ${phone}\n\n`;
-                orderText += `<b>Заказ:</b>\n${cart.map(item => 
-                    `- ${item.name} (${item.price}₭) × ${item.quantity} = <b>${item.price * item.quantity}₭</b>`
-                ).join('\n')}`;
-                orderText += `\n\n<b>Итого:</b> ${total}₭\n<b>Сообщение:</b> ${message || 'Нет'}`;
+        // Формирование сообщения
+        const message = document.getElementById('message').value.trim();
+        let orderText = `<b>🐾 Новый заказ!</b>\n\n`;
+        orderText += `<b>Имя:</b> ${name}\n<b>Контакты:</b> ${contacts}\n\n`;
+        orderText += `<b>Заказ:</b>\n${cart.map(item => 
+            `- ${item.name} (${item.price}₭) × ${item.quantity} = <b>${item.price * item.quantity}₭</b>`
+        ).join('\n')}`;
+        orderText += `\n\n<b>Итого:</b> ${total}₭\n<b>Сообщение:</b> ${message || 'Нет'}`;
 
-                // Отправка в Telegram
+        // Отправка в Telegram
                 const botToken = '7711601731:AAFav92ACe0yaFR0LDEaeY9WZaQlc5H4xdE';
                 const chatId = '1278323093';
                 
