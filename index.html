@@ -482,81 +482,107 @@
             return products[name] || 'https://placekitten.com/100/100';
         }
         
-        // Отправка формы
-        // Отправка формы (исправленная версия)
-        document.getElementById('orderForm').addEventListener('submit', function(e) {
+        // Улучшенная функция отправки формы
+        document.getElementById('orderForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
+            // Проверка корзины
             if (cart.length === 0) {
                 alert('Добавьте товары в корзину перед отправкой!');
                 return;
             }
             
+            // Проверка баланса
             const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             if (total > userBalance) {
                 alert('Недостаточно котико-монеток для этого заказа!');
                 return;
             }
             
+            // Проверка заполнения полей
             const name = document.getElementById('name').value.trim();
             const phone = document.getElementById('phone').value.trim();
             const message = document.getElementById('message').value.trim();
 
-            if (!name || !phone) {
-                alert('Пожалуйста, заполните имя и контакты!');
+            if (!name) {
+                alert('Пожалуйста, введите ваше имя!');
+                return;
+            }
+
+            if (!phone) {
+                alert('Пожалуйста, укажите контакты для связи!');
                 return;
             }
 
             // Формируем текст заказа
-            let orderText = `📦 Новый заказ!\n\nИмя: ${name}\nКонтакты: ${phone}\n\nЗаказ:\n`;
+            let orderText = `<b>📦 Новый заказ!</b>\n\n`;
+            orderText += `<b>Имя:</b> ${name}\n`;
+            orderText += `<b>Контакты:</b> ${phone}\n\n`;
+            orderText += `<b>Заказ:</b>\n`;
             
             cart.forEach(item => {
-                orderText += `- ${item.name} (${item.price} котико-монеток) × ${item.quantity} = ${item.price * item.quantity} котико-монеток\n`;
+                orderText += `- ${item.name} (${item.price}₭) × ${item.quantity} = <b>${item.price * item.quantity}₭</b>\n`;
             });
             
-            orderText += `\nИтого: ${total} котико-монеток\n\nСообщение: ${message || 'Нет дополнительных пожеланий'}`;
-            
+            orderText += `\n<b>Итого:</b> ${total}₭\n\n`;
+            orderText += `<b>Сообщение:</b> ${message || 'Нет дополнительных пожеланий'}`;
+
+            // Данные бота (замените на свои!)
             const botToken = '7711601731:AAFav92ACe0yaFR0LDEaeY9WZaQlc5H4xdE';
             const chatId = '1278323093';
-            
-            // Отправка в Telegram
-            fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    chat_id: chatId,
-                    text: orderText,
-                    parse_mode: 'HTML'
-                }),
-            })
-            .then(response => {
+
+            try {
+                // Показываем пользователю, что идёт отправка
+                const submitBtn = document.getElementById('submitOrder');
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Отправка...';
+
+                // Отправка в Telegram
+                const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: orderText,
+                        parse_mode: 'HTML'
+                    }),
+                });
+
+                const data = await response.json();
+
                 if (!response.ok) {
-                    throw new Error('Ошибка сети');
+                    throw new Error(data.description || 'Ошибка сервера Telegram');
                 }
-                return response.json();
-            })
-            .then(data => {
-                if (data.ok) {
-                    // Списание средств
-                    userBalance -= total;
-                    localStorage.setItem('catCoinBalance', userBalance);
-                    
-                    alert('✅ Заказ отправлен! Средства списаны.');
-                    document.getElementById('orderForm').reset();
-                    cart = [];
-                    updateCart();
-                    updateBalanceDisplay();
-                } else {
-                    throw new Error(data.description || 'Ошибка отправки');
-                }
-            })
-            .catch(error => {
+
+                // Если всё успешно:
+                // 1. Списать средства
+                userBalance -= total;
+                localStorage.setItem('catCoinBalance', userBalance);
+                
+                // 2. Очистить корзину и форму
+                cart = [];
+                document.getElementById('orderForm').reset();
+                
+                // 3. Обновить интерфейс
+                updateCart();
+                updateBalanceDisplay();
+                
+                // 4. Уведомление об успехе
+                alert('✅ Заказ успешно отправлен! Средства списаны.');
+                
+            } catch (error) {
                 console.error('Ошибка:', error);
-                alert(`Ошибка отправки: ${error.message}\nПопробуйте написать напрямую: @livetobe`);
-            });
+                alert(`❌ Ошибка отправки: ${error.message}\nПопробуйте позже или напишите @livetobe`);
+            } finally {
+                // Восстанавливаем кнопку в любом случае
+                const submitBtn = document.getElementById('submitOrder');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Отправить заказ 🐱';
+            }
         });
+
         
         // Активация админки по тройному клику на баланс
         let clickCount = 0;
