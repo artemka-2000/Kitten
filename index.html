@@ -211,6 +211,110 @@
             flex-grow: 1;
             margin-right: 10px;
         }
+        
+        /* Вкладки */
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ffcce0;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: #ffe6ee;
+            margin-right: 5px;
+            border-radius: 8px 8px 0 0;
+            transition: all 0.3s;
+        }
+        .tab.active {
+            background: #ff85a2;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Календарь */
+        .calendar {
+            width: 100%;
+            margin-top: 20px;
+        }
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .calendar-title {
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+        .calendar-day-header {
+            font-weight: bold;
+            padding: 10px;
+            text-align: center;
+            background: #ffcce0;
+            border-radius: 5px;
+        }
+        .calendar-day {
+            padding: 10px;
+            text-align: center;
+            background: #fff9f9;
+            border-radius: 5px;
+            min-height: 40px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .calendar-day:hover {
+            background: #ffd6e7;
+        }
+        .calendar-day.empty {
+            background: transparent;
+            cursor: default;
+        }
+        .calendar-day.selected {
+            background: #ff85a2;
+            color: white;
+        }
+        .calendar-day.booked {
+            background: #ffd6e7;
+            position: relative;
+        }
+        .calendar-day.booked::after {
+            content: "🐾";
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            font-size: 12px;
+        }
+        .time-slots {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .time-slot {
+            padding: 8px 15px;
+            background: #ffe6ee;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .time-slot.selected {
+            background: #ff85a2;
+            color: white;
+        }
+        .time-slot.booked {
+            background: #ffd6e7;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -218,107 +322,152 @@
         <h1>Служба поддержки сладеньких котиков</h1>
         <img src="https://avatars.mds.yandex.net/i?id=078fe9ac126c904f9787d7747b8000e0_l-12486332-images-thumbs&n=13" alt="Котик" class="cat-img">
         
-        <!-- Блок баланса -->
-        <div class="balance-container">
-            <div>
-                <h3>Ваш баланс:</h3>
-                <div class="balance"><img src="https://cdn-icons-png.flaticon.com/512/217/217853.png" alt="Монетка"> <span id="userBalance">0</span> котико-монеток</div>
-            </div>
-            <div id="adminControls" style="display: none;" class="admin-controls">
-                <h4>Админ-панель</h4>
-                <div class="admin-input">
-                    <input type="number" id="newBalance" placeholder="Новый баланс">
-                    <button onclick="setBalance()">Установить</button>
+        <!-- Вкладки -->
+        <div class="tabs">
+            <div class="tab active" data-tab="shop">Магазин</div>
+            <div class="tab" data-tab="calendar">Календарь</div>
+        </div>
+        
+        <!-- Вкладка магазина -->
+        <div class="tab-content active" id="shop-tab">
+            <!-- Блок баланса -->
+            <div class="balance-container">
+                <div>
+                    <h3>Ваш баланс:</h3>
+                    <div class="balance"><img src="https://cdn-icons-png.flaticon.com/512/217/217853.png" alt="Монетка"> <span id="userBalance">0</span> котико-монеток</div>
                 </div>
+                <div id="adminControls" style="display: none;" class="admin-controls">
+                    <h4>Админ-панель</h4>
+                    <div class="admin-input">
+                        <input type="number" id="newBalance" placeholder="Новый баланс">
+                        <button onclick="setBalance()">Установить</button>
+                    </div>
+                </div>
+            </div>
+            
+            <p>Выберите то, что вам нужно, и я свяжусь с вами!</p>
+
+            <div class="order-form">
+                <form id="orderForm">
+                    <label for="name">Ваше имя:</label>
+                    <input type="text" id="name" name="name" required>
+                    <label for="name">Ваши контакты:</label>
+                    <input type="text" id="contacts" name="contacts" required>
+
+                    <h3>Выберите товары:</h3>
+                    <div class="products">
+                        <div class="product">
+                            <img src="https://i.pinimg.com/736x/f0/62/9f/f0629f0bbd9e2805a521496c37a66d4b.jpg" alt="Матча">
+                            <div class="product-info">
+                                <div class="product-title">Матча</div>
+                                <div class="product-price">10 котико-монеток</div>
+                            </div>
+                            <button type="button" class="add-to-cart" data-name="Матча" data-price="10">+</button>
+                        </div>
+                        
+                        <div class="product">
+                            <img src="https://i.pinimg.com/736x/c7/a7/1f/c7a71fd3fec2905659ec003bc53f1772.jpg" alt="Прогулка">
+                            <div class="product-info">
+                                <div class="product-title">Вызвать котика на прогулку</div>
+                                <div class="product-price">12 котико-монеток</div>
+                            </div>
+                            <button type="button" class="add-to-cart" data-name="Вызвать котика на прогулку" data-price="12">+</button>
+                        </div>
+                        
+                        <div class="product">
+                            <img src="https://i.pinimg.com/originals/9d/c2/e1/9dc2e1daf0e30e979f30d717be351d53.jpg" alt="Созвон">
+                            <div class="product-info">
+                                <div class="product-title">Созвон с котиком</div>
+                                <div class="product-price">3 котико-монетки</div>
+                            </div>
+                            <button type="button" class="add-to-cart" data-name="Созвон с котиком" data-price="3">+</button>
+                        </div>
+                        
+                        <div class="product">
+                            <img src="https://avatars.mds.yandex.net/i?id=f7739b1e1c4adb444fc861630b861052_l-5490985-images-thumbs&n=13" alt="Завтрак">
+                            <div class="product-info">
+                                <div class="product-title">Утреннее-сонный завтрак</div>
+                                <div class="product-price">15 котико-монетки</div>
+                            </div>
+                            <button type="button" class="add-to-cart" data-name="Утреннее-сонный завтрак" data-price="15">+</button>
+                        </div>
+                        
+                        <div class="product">
+                            <img src="https://avatars.mds.yandex.net/i?id=93f0f2d6fb02e5efb9caae0a91819bfd_l-9848182-images-thumbs&n=13" alt="Горячее">
+                            <div class="product-info">
+                                <div class="product-title">Что-то погорячее</div>
+                                <div class="product-price">от 5 котико-монеток</div>
+                            </div>
+                            <button type="button" class="show-hot-items" onclick="toggleHotItems()">Выбрать набор ▼</button>
+                            <div class="hot-items" id="hotItems">
+                                <div class="hot-item">
+                                    <div class="hot-item-title">Набор №1 (5 котико-монеток)</div>
+                                    <div class="hot-item-desc">Рекомендовано перед выходом на работу</div>
+                                    <button type="button" class="add-to-cart" data-name="Набор №1 (Утренний)" data-price="5">+</button>
+                                </div>
+                                <div class="hot-item">
+                                    <div class="hot-item-title">Набор №2 (8 котико-монеток)</div>
+                                    <div class="hot-item-desc">Рекомендовано при желании развлечься по взрослому</div>
+                                    <button type="button" class="add-to-cart" data-name="Набор №2 (Для взрослых)" data-price="8">+</button>
+                                </div>
+                                <div class="hot-item">
+                                    <div class="hot-item-title">Набор №3 (12 котико-монеток)</div>
+                                    <div class="hot-item-desc">Рекомендовано с шампанским и готовностью сильно увлечься процессом</div>
+                                    <button type="button" class="add-to-cart" data-name="Набор №3 (Премиум)" data-price="12">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cart">
+                        <h3>Ваша корзина:</h3>
+                        <div id="cart-items"></div>
+                        <div id="cart-total" style="font-weight: bold; margin-top: 10px;"></div>
+                        <div id="balance-check" style="color: #ff6b8b; margin-top: 10px;"></div>
+                    </div>
+
+                    <label for="message">Дополнительные пожелания:</label>
+                    <textarea id="message" name="message" rows="4"></textarea>
+
+                    <button type="submit" id="submitOrder">Отправить заказ 🐱</button>
+                </form>
             </div>
         </div>
         
-        <p>Выберите то, что вам нужно, и я свяжусь с вами!</p>
-
-        <div class="order-form">
-            <form id="orderForm">
-                <label for="name">Ваше имя:</label>
-                <input type="text" id="name" name="name" required>
-                <label for="name">Ваши контакты:</label>
-                <input type="text" id="contacts" name="contacts" required>
-
-                <h3>Выберите товары:</h3>
-                <div class="products">
-                    <div class="product">
-                        <img src="https://i.pinimg.com/736x/f0/62/9f/f0629f0bbd9e2805a521496c37a66d4b.jpg" alt="Матча">
-                        <div class="product-info">
-                            <div class="product-title">Матча</div>
-                            <div class="product-price">7 котико-монеток</div>
-                        </div>
-                        <button type="button" class="add-to-cart" data-name="Матча" data-price="15">+</button>
+        <!-- Вкладка календаря -->
+        <div class="tab-content" id="calendar-tab">
+            <div class="order-form">
+                <h3>Совместный онлайн-календарь</h3>
+                <p>Выберите удобную дату и время для встречи с котиком</p>
+                
+                <div class="calendar">
+                    <div class="calendar-header">
+                        <button id="prev-month">◀</button>
+                        <div class="calendar-title" id="current-month">Май 2023</div>
+                        <button id="next-month">▶</button>
                     </div>
                     
-                    <div class="product">
-                        <img src="https://i.pinimg.com/736x/c7/a7/1f/c7a71fd3fec2905659ec003bc53f1772.jpg" alt="Прогулка">
-                        <div class="product-info">
-                            <div class="product-title">Вызвать котика на прогулку</div>
-                            <div class="product-price">8 котико-монеток</div>
-                        </div>
-                        <button type="button" class="add-to-cart" data-name="Вызвать котика на прогулку" data-price="8">+</button>
+                    <div class="calendar-grid" id="calendar-header">
+                        <div class="calendar-day-header">Пн</div>
+                        <div class="calendar-day-header">Вт</div>
+                        <div class="calendar-day-header">Ср</div>
+                        <div class="calendar-day-header">Чт</div>
+                        <div class="calendar-day-header">Пт</div>
+                        <div class="calendar-day-header">Сб</div>
+                        <div class="calendar-day-header">Вс</div>
                     </div>
                     
-                    <div class="product">
-                        <img src="https://i.pinimg.com/originals/9d/c2/e1/9dc2e1daf0e30e979f30d717be351d53.jpg" alt="Созвон">
-                        <div class="product-info">
-                            <div class="product-title">Созвон с котиком</div>
-                            <div class="product-price">3 котико-монетки</div>
-                        </div>
-                        <button type="button" class="add-to-cart" data-name="Созвон с котиком" data-price="3">+</button>
-                    </div>
+                    <div class="calendar-grid" id="calendar-days"></div>
                     
-                    <div class="product">
-                        <img src="https://avatars.mds.yandex.net/i?id=f7739b1e1c4adb444fc861630b861052_l-5490985-images-thumbs&n=13" alt="Завтрак">
-                        <div class="product-info">
-                            <div class="product-title">Утреннее-сонный завтрак</div>
-                            <div class="product-price">15 котико-монетки</div>
+                    <div id="time-slots-container" style="display: none;">
+                        <h4>Доступное время на <span id="selected-date"></span>:</h4>
+                        <div class="time-slots" id="time-slots">
+                            <!-- Слоты времени будут добавляться динамически -->
                         </div>
-                        <button type="button" class="add-to-cart" data-name="Утреннее-сонный завтрак" data-price="2">+</button>
-                    </div>
-                    
-                    <div class="product">
-                        <img src="https://avatars.mds.yandex.net/i?id=93f0f2d6fb02e5efb9caae0a91819bfd_l-9848182-images-thumbs&n=13" alt="Горячее">
-                        <div class="product-info">
-                            <div class="product-title">Что-то погорячее</div>
-                            <div class="product-price">от 5 котико-монеток</div>
-                        </div>
-                        <button type="button" class="show-hot-items" onclick="toggleHotItems()">Выбрать набор ▼</button>
-                        <div class="hot-items" id="hotItems">
-                            <div class="hot-item">
-                                <div class="hot-item-title">Набор №1 (5 котико-монеток)</div>
-                                <div class="hot-item-desc">Рекомендовано перед выходом на работу</div>
-                                <button type="button" class="add-to-cart" data-name="Набор №1 (Утренний)" data-price="5">+</button>
-                            </div>
-                            <div class="hot-item">
-                                <div class="hot-item-title">Набор №2 (7 котико-монеток)</div>
-                                <div class="hot-item-desc">Рекомендовано при желании развлечься по взрослому</div>
-                                <button type="button" class="add-to-cart" data-name="Набор №2 (Для взрослых)" data-price="8">+</button>
-                            </div>
-                            <div class="hot-item">
-                                <div class="hot-item-title">Набор №3 (10 котико-монеток)</div>
-                                <div class="hot-item-desc">Рекомендовано с шампанским и готовностью сильно увлечься процессом</div>
-                                <button type="button" class="add-to-cart" data-name="Набор №3 (Премиум)" data-price="12">+</button>
-                            </div>
-                        </div>
+                        <button id="book-time" style="margin-top: 15px;">Забронировать время</button>
                     </div>
                 </div>
-
-                <div class="cart">
-                    <h3>Ваша корзина:</h3>
-                    <div id="cart-items"></div>
-                    <div id="cart-total" style="font-weight: bold; margin-top: 10px;"></div>
-                    <div id="balance-check" style="color: #ff6b8b; margin-top: 10px;"></div>
-                </div>
-
-                <label for="message">Дополнительные пожелания:</label>
-                <textarea id="message" name="message" rows="4"></textarea>
-
-                <button type="submit" id="submitOrder">Отправить заказ 🐱</button>
-            </form>
+            </div>
         </div>
 
         <footer>
@@ -331,6 +480,11 @@
         let userBalance = 0;
         const ADMIN_PASSWORD = "228228";
         
+        // Календарь
+        let currentDate = new Date();
+        let selectedDate = null;
+        let selectedTime = null;
+        
         // Проверка баланса при загрузке страницы
         document.addEventListener('DOMContentLoaded', function() {
             // Получаем баланс из localStorage
@@ -340,10 +494,155 @@
             
             updateBalanceDisplay();
             
-            // Проверяем, админ ли это
-            // Убрана проверка isAdmin - панель всегда скрыта при загрузке
-            document.getElementById('adminControls').style.display = 'none';
+            // Инициализация календаря
+            renderCalendar();
+            
+            // Обработчики для календаря
+            document.getElementById('prev-month').addEventListener('click', function() {
+                currentDate.setMonth(currentDate.getMonth() - 1);
+                renderCalendar();
+            });
+            
+            document.getElementById('next-month').addEventListener('click', function() {
+                currentDate.setMonth(currentDate.getMonth() + 1);
+                renderCalendar();
+            });
+            
+            // Обработчик бронирования времени
+            document.getElementById('book-time').addEventListener('click', function() {
+                if (selectedDate && selectedTime) {
+                    alert(`Вы успешно забронировали время: ${selectedDate.toLocaleDateString()} в ${selectedTime}`);
+                    // Здесь можно добавить логику сохранения бронирования
+                }
+            });
+            
+            // Переключение вкладок
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(`${tabId}-tab`).classList.add('active');
+                });
+            });
         });
+        
+        // Функция для рендеринга календаря
+        function renderCalendar() {
+            const calendarDays = document.getElementById('calendar-days');
+            calendarDays.innerHTML = '';
+            
+            const month = currentDate.getMonth();
+            const year = currentDate.getFullYear();
+            
+            // Обновляем заголовок
+            const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 
+                              'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+            document.getElementById('current-month').textContent = `${monthNames[month]} ${year}`;
+            
+            // Первый день месяца
+            const firstDay = new Date(year, month, 1);
+            // Последний день месяца
+            const lastDay = new Date(year, month + 1, 0);
+            
+            // День недели первого дня месяца (0 - воскресенье, 1 - понедельник и т.д.)
+            const firstDayOfWeek = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+            
+            // Добавляем пустые ячейки для дней предыдущего месяца
+            for (let i = 0; i < firstDayOfWeek; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'calendar-day empty';
+                calendarDays.appendChild(emptyDay);
+            }
+            
+            // Добавляем дни текущего месяца
+            for (let day = 1; day <= lastDay.getDate(); day++) {
+                const date = new Date(year, month, day);
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                dayElement.textContent = day;
+                
+                // Проверяем, является ли день выходным
+                if (date.getDay() === 0 || date.getDay() === 6) {
+                    dayElement.style.color = '#ff6b8b';
+                }
+                
+                // Проверяем, является ли день сегодняшним
+                const today = new Date();
+                if (date.getDate() === today.getDate() && 
+                    date.getMonth() === today.getMonth() && 
+                    date.getFullYear() === today.getFullYear()) {
+                    dayElement.style.border = '2px solid #ff85a2';
+                }
+                
+                // Добавляем обработчик выбора дня
+                dayElement.addEventListener('click', function() {
+                    selectDate(new Date(year, month, day));
+                });
+                
+                calendarDays.appendChild(dayElement);
+            }
+        }
+        
+        // Функция выбора даты
+        function selectDate(date) {
+            selectedDate = date;
+            
+            // Сбрасываем выделение всех дней
+            document.querySelectorAll('.calendar-day').forEach(day => {
+                day.classList.remove('selected');
+            });
+            
+            // Выделяем выбранный день
+            const days = document.querySelectorAll('.calendar-day');
+            const dayIndex = date.getDate() + Math.floor((date.getDay() - date.getDate() % 7) / 7) - 1;
+            if (days[dayIndex]) {
+                days[dayIndex].classList.add('selected');
+            }
+            
+            // Показываем доступные временные слоты
+            document.getElementById('selected-date').textContent = date.toLocaleDateString();
+            document.getElementById('time-slots-container').style.display = 'block';
+            
+            // Генерируем временные слоты
+            generateTimeSlots();
+        }
+        
+        // Генерация временных слотов
+        function generateTimeSlots() {
+            const timeSlots = document.getElementById('time-slots');
+            timeSlots.innerHTML = '';
+            
+            // Примерные временные слоты
+            const slots = ['10:00', '12:00', '14:00', '16:00', '18:00', '20:00'];
+            
+            slots.forEach(slot => {
+                const slotElement = document.createElement('div');
+                slotElement.className = 'time-slot';
+                slotElement.textContent = slot;
+                
+                // Случайным образом помечаем некоторые слоты как занятые
+                if (Math.random() < 0.3) {
+                    slotElement.classList.add('booked');
+                    slotElement.title = 'Уже забронировано';
+                } else {
+                    slotElement.addEventListener('click', function() {
+                        document.querySelectorAll('.time-slot').forEach(s => {
+                            s.classList.remove('selected');
+                        });
+                        this.classList.add('selected');
+                        selectedTime = this.textContent;
+                    });
+                }
+                
+                timeSlots.appendChild(slotElement);
+            });
+        }
         
         // Функция для показа/скрытия горячих наборов
         function toggleHotItems() {
@@ -451,24 +750,24 @@
         
         // Установка нового баланса (админка)
         function setBalance() {
-        const password = prompt('Введите пароль админа:');
-        if (password === ADMIN_PASSWORD) {
-            const newBalance = parseInt(document.getElementById('newBalance').value);
-            if (!isNaN(newBalance)) {
-                userBalance = newBalance;
-                localStorage.setItem('catCoinBalance', userBalance);
-                localStorage.setItem('isAdmin', 'true');
-                updateBalanceDisplay();
-                alert('Баланс обновлён!');
-                // Закрываем админ-панель
-                document.getElementById('adminControls').style.display = 'none';
-            } else {
-                alert('Введите корректное число!');
+            const password = prompt('Введите пароль админа:');
+            if (password === ADMIN_PASSWORD) {
+                const newBalance = parseInt(document.getElementById('newBalance').value);
+                if (!isNaN(newBalance)) {
+                    userBalance = newBalance;
+                    localStorage.setItem('catCoinBalance', userBalance);
+                    localStorage.setItem('isAdmin', 'true');
+                    updateBalanceDisplay();
+                    alert('Баланс обновлён!');
+                    // Закрываем админ-панель
+                    document.getElementById('adminControls').style.display = 'none';
+                } else {
+                    alert('Введите корректное число!');
+                }
+            } else if (password) {
+                alert('Неверный пароль!');
             }
-        } else if (password) {
-            alert('Неверный пароль!');
         }
-    }
         
         // Получение изображения товара
         function getProductImage(name) {
@@ -486,34 +785,34 @@
         
         // Улучшенная функция отправки формы
         document.getElementById('orderForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    const submitBtn = document.getElementById('submitOrder');
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Отправка...';
-    
-    try {
-        // Проверки
-        if (cart.length === 0) throw new Error('Добавьте товары в корзину!');
-        
-        const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        if (total > userBalance) throw new Error('Недостаточно котико-монеток!');
-        
-        const name = document.getElementById('name').value.trim();
-        const contacts = document.getElementById('contacts').value.trim();
-        if (!name) throw new Error('Введите ваше имя!');
-        if (!contacts) throw new Error('Укажите контакты для связи!');
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitOrder');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Отправка...';
+            
+            try {
+                // Проверки
+                if (cart.length === 0) throw new Error('Добавьте товары в корзину!');
+                
+                const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                if (total > userBalance) throw new Error('Недостаточно котико-монеток!');
+                
+                const name = document.getElementById('name').value.trim();
+                const contacts = document.getElementById('contacts').value.trim();
+                if (!name) throw new Error('Введите ваше имя!');
+                if (!contacts) throw new Error('Укажите контакты для связи!');
 
-        // Формирование сообщения
-        const message = document.getElementById('message').value.trim();
-        let orderText = `<b>🐾 Новый заказ!</b>\n\n`;
-        orderText += `<b>Имя:</b> ${name}\n<b>Контакты:</b> ${contacts}\n\n`;
-        orderText += `<b>Заказ:</b>\n${cart.map(item => 
-            `- ${item.name} (${item.price}₭) × ${item.quantity} = <b>${item.price * item.quantity}₭</b>`
-        ).join('\n')}`;
-        orderText += `\n\n<b>Итого:</b> ${total}₭\n<b>Сообщение:</b> ${message || 'Нет'}`;
+                // Формирование сообщения
+                const message = document.getElementById('message').value.trim();
+                let orderText = `<b>🐾 Новый заказ!</b>\n\n`;
+                orderText += `<b>Имя:</b> ${name}\n<b>Контакты:</b> ${contacts}\n\n`;
+                orderText += `<b>Заказ:</b>\n${cart.map(item => 
+                    `- ${item.name} (${item.price}₭) × ${item.quantity} = <b>${item.price * item.quantity}₭</b>`
+                ).join('\n')}`;
+                orderText += `\n\n<b>Итого:</b> ${total}₭\n<b>Сообщение:</b> ${message || 'Нет'}`;
 
-        // Отправка в Telegram
+                // Отправка в Telegram
                 const botToken = '7711601731:AAFav92ACe0yaFR0LDEaeY9WZaQlc5H4xdE';
                 const chatId = '1278323093';
                 
