@@ -315,10 +315,175 @@
             background: #ffd6e7;
             cursor: not-allowed;
         }
+        .calendar-day.has-events {
+            position: relative;
+        }
+        
+        .calendar-day.has-events::after {
+            content: "";
+            position: absolute;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 6px;
+            background-color: #ff6b8b;
+            border-radius: 50%;
+        }
+        
+        .calendar-day.selected.has-events::after {
+            background-color: white;
+        }
+        
+        .event-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .event-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: left;
+            position: relative;
+        }
+        
+        .event-item .event-time {
+            font-weight: bold;
+            color: #ff6b8b;
+            margin-right: 5px;
+        }
+        
+        .event-item .event-title {
+            display: inline;
+        }
+        
+        .event-item .delete-event {
+            position: absolute;
+            right: 8px;
+            top: 8px;
+            color: #ff6b8b;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .add-event-form {
+            margin-top: 15px;
+            padding: 15px;
+            background: #fff9f9;
+            border-radius: 10px;
+        }
+        
+        .add-event-form input,
+        .add-event-form textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ffcce0;
+            border-radius: 5px;
+        }
+        
+        .add-event-form textarea {
+            height: 60px;
+        }
+        
+        .event-category {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-right: 5px;
+            background: #ffcce0;
+            color: #5a3e36;
+        }
+        
+        .category-selector {
+            display: flex;
+            gap: 5px;
+            margin: 10px 0;
+        }
+        
+        .category-option {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .category-option.selected {
+            border-color: #5a3e36;
+        }
+        
+        /* Цвета категорий */
+        .category-work { background-color: #ff9aa2; }
+        .category-personal { background-color: #ffb7b2; }
+        .category-family { background-color: #ffdac1; }
+        .category-friends { background-color: #e2f0cb; }
+        .category-pets { background-color: #b5ead7; }
+        .category-other { background-color: #c7ceea; }
     </style>
 </head>
 <body>
     <div class="container">
+      <div class="tab-content" id="calendar-tab">
+            <div class="order-form">
+                <h3>Совместный онлайн-календарь</h3>
+                <p>Записывайте планы и встречи с котиками 🐱</p>
+                
+                <div class="calendar">
+                    <div class="calendar-header">
+                        <button id="prev-month">◀</button>
+                        <div class="calendar-title" id="current-month">Май 2023</div>
+                        <button id="next-month">▶</button>
+                    </div>
+                    
+                    <div class="calendar-grid" id="calendar-header">
+                        <div class="calendar-day-header">Пн</div>
+                        <div class="calendar-day-header">Вт</div>
+                        <div class="calendar-day-header">Ср</div>
+                        <div class="calendar-day-header">Чт</div>
+                        <div class="calendar-day-header">Пт</div>
+                        <div class="calendar-day-header">Сб</div>
+                        <div class="calendar-day-header">Вс</div>
+                    </div>
+                    
+                    <div class="calendar-grid" id="calendar-days"></div>
+                    
+                    <div id="day-events-container" style="display: none; margin-top: 20px;">
+                        <h4>События на <span id="events-date"></span>:</h4>
+                        <div id="day-events-list"></div>
+                        
+                        <div class="add-event-form">
+                            <h5>Добавить новое событие</h5>
+                            <input type="text" id="event-title" placeholder="Название события" required>
+                            
+                            <div class="category-selector">
+                                <div class="category-option category-work selected" data-category="work"></div>
+                                <div class="category-option category-personal" data-category="personal"></div>
+                                <div class="category-option category-family" data-category="family"></div>
+                                <div class="category-option category-friends" data-category="friends"></div>
+                                <div class="category-option category-pets" data-category="pets"></div>
+                                <div class="category-option category-other" data-category="other"></div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 10px; margin: 10px 0;">
+                                <input type="time" id="event-time" required style="flex: 1;">
+                                <input type="text" id="event-duration" placeholder="Длительность (мин)" style="flex: 1;">
+                            </div>
+                            
+                            <textarea id="event-description" placeholder="Описание (необязательно)"></textarea>
+                            <button id="add-event-btn">Добавить событие</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <h1>Служба поддержки сладеньких котиков</h1>
         <img src="https://avatars.mds.yandex.net/i?id=078fe9ac126c904f9787d7747b8000e0_l-12486332-images-thumbs&n=13" alt="Котик" class="cat-img">
         
@@ -864,6 +1029,233 @@
                 }
                 clickCount = 0;
             }
+        });
+      let events = JSON.parse(localStorage.getItem('catCalendarEvents')) || [];
+        let selectedCategory = 'work';
+        
+        // Обновленная функция selectDate
+        function selectDate(date) {
+            selectedDate = date;
+            
+            // Сбрасываем выделение всех дней
+            document.querySelectorAll('.calendar-day').forEach(day => {
+                day.classList.remove('selected');
+            });
+            
+            // Выделяем выбранный день
+            const days = document.querySelectorAll('.calendar-day');
+            const dayIndex = date.getDate() + Math.floor((date.getDay() - date.getDate() % 7) / 7) - 1;
+            if (days[dayIndex]) {
+                days[dayIndex].classList.add('selected');
+            }
+            
+            // Показываем события для выбранного дня
+            showDayEvents(date);
+        }
+        
+        // Функция для отображения событий дня
+        function showDayEvents(date) {
+            const dateStr = formatDate(date);
+            document.getElementById('events-date').textContent = dateStr;
+            
+            const dayEvents = events.filter(event => event.date === dateStr);
+            const eventsList = document.getElementById('day-events-list');
+            
+            eventsList.innerHTML = '';
+            
+            if (dayEvents.length === 0) {
+                eventsList.innerHTML = '<p>Нет событий на этот день</p>';
+            } else {
+                // Сортируем события по времени
+                dayEvents.sort((a, b) => a.time.localeCompare(b.time));
+                
+                dayEvents.forEach((event, index) => {
+                    const eventElement = document.createElement('div');
+                    eventElement.className = 'event-item';
+                    eventElement.innerHTML = `
+                        <span class="event-dot category-${event.category}"></span>
+                        <span class="event-time">${event.time}</span>
+                        <span class="event-title">${event.title}</span>
+                        ${event.duration ? `<small>(${event.duration} мин)</small>` : ''}
+                        <span class="delete-event" data-date="${event.date}" data-index="${index}">×</span>
+                        ${event.description ? `<div style="margin-top: 5px; font-size: 0.9em;">${event.description}</div>` : ''}
+                    `;
+                    eventsList.appendChild(eventElement);
+                });
+                
+                // Добавляем обработчики для удаления событий
+                document.querySelectorAll('.delete-event').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const date = this.getAttribute('data-date');
+                        const index = parseInt(this.getAttribute('data-index'));
+                        deleteEvent(date, index);
+                    });
+                });
+            }
+            
+            document.getElementById('day-events-container').style.display = 'block';
+        }
+        
+        // Функция добавления события
+        function addEvent() {
+            const title = document.getElementById('event-title').value.trim();
+            const time = document.getElementById('event-time').value;
+            const duration = document.getElementById('event-duration').value.trim();
+            const description = document.getElementById('event-description').value.trim();
+            
+            if (!title || !time) {
+                alert('Пожалуйста, укажите название и время события');
+                return;
+            }
+            
+            const newEvent = {
+                date: formatDate(selectedDate),
+                title: title,
+                time: time,
+                category: selectedCategory,
+                duration: duration || null,
+                description: description || null
+            };
+            
+            events.push(newEvent);
+            saveEvents();
+            
+            // Очищаем форму
+            document.getElementById('event-title').value = '';
+            document.getElementById('event-time').value = '';
+            document.getElementById('event-duration').value = '';
+            document.getElementById('event-description').value = '';
+            
+            // Обновляем отображение
+            showDayEvents(selectedDate);
+            renderCalendar();
+        }
+        
+        // Функция удаления события
+        function deleteEvent(date, index) {
+            // Находим все события для указанной даты
+            const dateEvents = events.filter(event => event.date === date);
+            
+            if (index >= 0 && index < dateEvents.length) {
+                // Находим полный индекс события в общем массиве
+                const globalIndex = events.findIndex(event => 
+                    event.date === date && 
+                    event.title === dateEvents[index].title && 
+                    event.time === dateEvents[index].time
+                );
+                
+                if (globalIndex !== -1) {
+                    events.splice(globalIndex, 1);
+                    saveEvents();
+                    showDayEvents(selectedDate);
+                    renderCalendar();
+                }
+            }
+        }
+        
+        // Функция сохранения событий в localStorage
+        function saveEvents() {
+            localStorage.setItem('catCalendarEvents', JSON.stringify(events));
+        }
+        
+        // Функция форматирования даты в строку (YYYY-MM-DD)
+        function formatDate(date) {
+            const d = new Date(date);
+            let month = '' + (d.getMonth() + 1);
+            let day = '' + d.getDate();
+            const year = d.getFullYear();
+            
+            if (month.length < 2) month = '0' + month;
+            if (day.length < 2) day = '0' + day;
+            
+            return [year, month, day].join('-');
+        }
+        
+        // Обновленная функция renderCalendar с отметками событий
+        function renderCalendar() {
+            const calendarDays = document.getElementById('calendar-days');
+            calendarDays.innerHTML = '';
+            
+            const month = currentDate.getMonth();
+            const year = currentDate.getFullYear();
+            
+            // Обновляем заголовок
+            const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 
+                              'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+            document.getElementById('current-month').textContent = `${monthNames[month]} ${year}`;
+            
+            // Первый день месяца
+            const firstDay = new Date(year, month, 1);
+            // Последний день месяца
+            const lastDay = new Date(year, month + 1, 0);
+            
+            // День недели первого дня месяца (0 - воскресенье, 1 - понедельник и т.д.)
+            const firstDayOfWeek = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+            
+            // Добавляем пустые ячейки для дней предыдущего месяца
+            for (let i = 0; i < firstDayOfWeek; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'calendar-day empty';
+                calendarDays.appendChild(emptyDay);
+            }
+            
+            // Добавляем дни текущего месяца
+            for (let day = 1; day <= lastDay.getDate(); day++) {
+                const date = new Date(year, month, day);
+                const dateStr = formatDate(date);
+                const dayEvents = events.filter(event => event.date === dateStr);
+                
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                dayElement.textContent = day;
+                
+                // Проверяем, есть ли события на этот день
+                if (dayEvents.length > 0) {
+                    dayElement.classList.add('has-events');
+                }
+                
+                // Проверяем, является ли день выходным
+                if (date.getDay() === 0 || date.getDay() === 6) {
+                    dayElement.style.color = '#ff6b8b';
+                }
+                
+                // Проверяем, является ли день сегодняшним
+                const today = new Date();
+                if (date.getDate() === today.getDate() && 
+                    date.getMonth() === today.getMonth() && 
+                    date.getFullYear() === today.getFullYear()) {
+                    dayElement.style.border = '2px solid #ff85a2';
+                }
+                
+                // Добавляем обработчик выбора дня
+                dayElement.addEventListener('click', function() {
+                    selectDate(new Date(year, month, day));
+                });
+                
+                calendarDays.appendChild(dayElement);
+            }
+        }
+        
+        // Инициализация после загрузки DOM
+        document.addEventListener('DOMContentLoaded', function() {
+            // Все предыдущие инициализации остаются
+            
+            // Обработчик для добавления события
+            document.getElementById('add-event-btn').addEventListener('click', addEvent);
+            
+            // Обработчики для выбора категории
+            document.querySelectorAll('.category-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.category-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    this.classList.add('selected');
+                    selectedCategory = this.getAttribute('data-category');
+                });
+            });
+            
+            // Инициализация календаря
+            renderCalendar();
         });
     </script>
 </body>
